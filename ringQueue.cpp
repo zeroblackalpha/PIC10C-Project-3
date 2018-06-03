@@ -1,14 +1,3 @@
-// Description: An incomplete implementation of iterators for a
-//              RingQueue class.
-//
-// Notes: The project DOES compile but there is no meaningful 
-//              output
-//
-// Your job: To complete this set of classes so that the output
-//              produced by 'main' (below), matches the sample
-//              file provided at the end of this file.
-
-
 #include <iostream>
 using std::cout;
 
@@ -60,27 +49,33 @@ class RingQueue{
 
             public:
                 reference operator*() {
-                    // Replace the line(s) below with your code.
-                    return parent->buffer[0] ;  
+                    return parent->buffer[(parent->begin_index + offset) % MAX_SIZE] ;  
                 }
 
                 iterator& operator++(){
-                    // Replace the line(s) below with your code.
+                    ++offset;
+                    offset %= MAX_SIZE;
                     return *this;
                 }
 
                 iterator operator++( int unused ){
-                    // Replace the line(s) below with your code.
-                    return *this;
+                    auto temp = *this;
+                    ++offset;
+                    offset %= MAX_SIZE;
+                    return temp;
                 }
 
                 bool operator==( const iterator& rhs ) const {
-                    // Replace the line(s) below with your code.
-                    return true;
+                    if (parent == rhs->parent && offset == rhs->offset) {
+                        return true;
+                    }
+                    return false;
                 }
 
                 bool operator!=( const iterator& rhs ) const {
-                    // Replace the line(s) below with your code.
+                    if (parent == rhs.parent && offset == rhs.offset) {
+                        return false;
+                    }
                     return true;
                 }
 
@@ -127,13 +122,9 @@ class RingQueue{
         // its capacity. 
         int ring_size;
 
-
-
-        // A helper function that computes the index of 'the end'
-        // of the RingQueue
+        // A helper function that computes the index of 'the end' of the RingQueue
         int end_index() const {
-            // Replace the line(s) below with your code.
-            return begin_index;
+            return (begin_index + ring_size) % MAX_SIZE;
         }
 
 
@@ -147,45 +138,53 @@ class RingQueue{
             if ( ring_size == 0 ) std::cerr<< "Warning: Empty ring!\n" ;
             // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             // Feel free to throw instead...
-            
-            
-            // Replace the line(s) below with your code.
-            return buffer[0];
+            return buffer[begin_index];
         }
+
         ItemType back() const {  
             if ( ring_size == 0 ) std::cerr<< "Warning: Empty ring!\n" ;
             // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             // Feel free to throw instead...
-            
-            
-            // Replace the line(s) below with your code.
-            return buffer[0]; 
+            return buffer[end_index()]; 
         }
 
 
 
         // Mutators
-        void push_back( const ItemType& value ){
-            return;
+        void push_back( const ItemType& value ) {
+            buffer[end_index()] = value;
+            if (ring_size < MAX_SIZE) {
+                ++ring_size;
+            }
+            else {
+                ++begin_index;
+                begin_index %= MAX_SIZE;
+            }
         }
-        void pop_front(){
-            return;
+
+        void pop_front() {
+            if ( ring_size == 0 ) std::cerr<< "Warning: Empty ring!\n" ;
+            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            // Feel free to throw instead...
+            --ring_size;
+            ++begin_index;
+            begin_index %= MAX_SIZE;
         }
 
         // Functions that return iterators
         iterator begin() { 
-            // Replace the line(s) below with your code.
-            return iterator(this,0); 
+            return iterator(this, 0); 
         }
         iterator end() {
-            // Replace the line(s) below with your code.
-            return iterator(this,0);
+            if (begin_index == end_index()) {
+                return iterator(this, MAX_SIZE);
+            }
+            return iterator(this, ring_size);
         }
 
         // Miscellaneous functions
         size_t size() const {
-            // Replace the line(s) below with your code.
-            return 0;
+            return ring_size;
         }
 
         // Debugging functions
@@ -199,7 +198,7 @@ class RingQueue{
 
 };
 
-int main(){
+int main() {
     RingQueue<int,7> rq;
     rq.dump_queue();
 
@@ -211,7 +210,6 @@ int main(){
 
     cout << "Queue via size: \n";
 
-    // RingQueue<int,7>::iterator it = rq.begin() ; 
     auto it = rq.begin() ; 
     for ( size_t i = 0 ; i < rq.size() ; ++i ) {
         cout << "Value: " << *it << ", address: " << &(*it) << '\n';
@@ -225,18 +223,17 @@ int main(){
     // implementation of RingQueue<ItemType,int>::end(). 
     // If the implementation is not correct, it might result in 
     // an infinite loop.
-    /** 
     std::cout << "Queue via iterators: \n";
     for ( auto it = rq.begin() ; it != rq.end() ; ++it ) {
         std::cout << "Value: " << *it << ", address: " << &(*it) << '\n';
     }
     std::cout << '\n';
-    */
 
 
 
     rq.dump_queue();
 
+    system("pause");
     return 0;
 }
 
