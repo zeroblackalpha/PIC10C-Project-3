@@ -1,106 +1,302 @@
-/* *************************************************
-   Ricardo Salazar
-   July 2017
+// Description: An incomplete implementation of iterators for a
+//              RingQueue class.
+//
+// Notes: The project DOES compile but there is no meaningful 
+//              output
+//
+// Your job: To complete this set of classes so that the output
+//              produced by 'main' (below), matches the sample
+//              file provided at the end of this file.
 
-   Driver for the Pic10b::vector<int> class.
-   ************************************************* */
 
-#include "pic10b_vector.h"   // Pic10b::vector<ItemType>
-#include <iostream>          // std::cout
-#include <iomanip>           // std::boolalpha
-#include <string>            // std::string
-#include <cmath>             // sqrt(...)
-
+#include <iostream>
 using std::cout;
-using std::boolalpha;
-using std::string;
-using Pic10b::vector;
 
+// Forward declaration
+template <typename ItemType, int MAX_SIZE>
+class RingQueue;
+
+
+
+template <typename ItemType, int MAX_SIZE>
+class RingQueue{
+    
+    // Nested Forward declaration of RingQueue<ItemType,MAX_SIZE>::iterator
+    // This is needed if one plans to turn this home-made iterator into
+    // one of the special categories of iterators (e.g., input, output,
+    // forward, etc.).
+    public: 
+        class iterator;
+
+
+
+    // Aliases. 
+    typedef ItemType* pointer;
+    typedef ItemType& reference;
+
+
+
+    // Definition of RingQueue<ItemType,MAX_SIZE>::iterator
+    public:
+        class iterator{
+            private:
+                // A link to the parent container 
+                RingQueue* parent;
+
+                // The position within the RingQueue is determined
+                // by how far ahead we are from the begining of the
+                // queue.
+                int offset;
+
+            private:  // Private constructor???
+                iterator(RingQueue* _parent, int _offset = 0 )
+                  : parent(_parent), offset(_offset) { }
+
+                
+            // It is quite common for Containers and their iterators
+            // to be friends. After all, they should work closely together.
+            friend class RingQueue<ItemType,MAX_SIZE>;
+
+
+            public:
+                reference operator*() {
+                    // Replace the line(s) below with your code.
+                    return parent->buffer[0] ;  
+                }
+
+                iterator& operator++(){
+                    // Replace the line(s) below with your code.
+                    return *this;
+                }
+
+                iterator operator++( int unused ){
+                    // Replace the line(s) below with your code.
+                    return *this;
+                }
+
+                bool operator==( const iterator& rhs ) const {
+                    // Replace the line(s) below with your code.
+                    return true;
+                }
+
+                bool operator!=( const iterator& rhs ) const {
+                    // Replace the line(s) below with your code.
+                    return true;
+                }
+
+        };
+
+
+
+        /**
+        class const_iterator{
+            private:
+                RingQueue* parent;
+                int offset;
+
+            private:
+                // Only RingQueue objects can create const_iterators...
+                const_iterator() ;
+
+            public:
+                // ... however, const_iterators can be 'copied'.
+                const_iterator( const const_iterator& ) ;
+
+            friend class RingQueue<ItemType,MAX_SIZE>;
+        };
+        */
+
+
+
+    // Friendship goes both ways here.
+    friend class iterator;
+    // friend class const_iterator;  // not implemented... yet.
+
+
+
+    private:
+        // A fixed-size static array with constant capacity that represents 
+        // the RingQueue
+        ItemType buffer[MAX_SIZE];
+
+        // The starting index. It changes according to a very 
+        // specific set of rules (below).
+        int begin_index;
+
+        // The actual size of the RingQueue. Not to be confused with
+        // its capacity. 
+        int ring_size;
+
+
+
+        // A helper function that computes the index of 'the end'
+        // of the RingQueue
+        int end_index() const {
+            // Replace the line(s) below with your code.
+            return begin_index;
+        }
+
+
+
+    public: 
+        // Constructor
+        RingQueue() : begin_index(0), ring_size(0) { }
+
+        // Accessors. Note: 'back()' is not considered part of the array.
+        ItemType front() const { 
+            if ( ring_size == 0 ) std::cerr<< "Warning: Empty ring!\n" ;
+            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            // Feel free to throw instead...
+            
+            
+            // Replace the line(s) below with your code.
+            return buffer[0];
+        }
+        ItemType back() const {  
+            if ( ring_size == 0 ) std::cerr<< "Warning: Empty ring!\n" ;
+            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            // Feel free to throw instead...
+            
+            
+            // Replace the line(s) below with your code.
+            return buffer[0]; 
+        }
+
+
+
+        // Mutators
+        void push_back( const ItemType& value ){
+            return;
+        }
+        void pop_front(){
+            return;
+        }
+
+        // Functions that return iterators
+        iterator begin() { 
+            // Replace the line(s) below with your code.
+            return iterator(this,0); 
+        }
+        iterator end() {
+            // Replace the line(s) below with your code.
+            return iterator(this,0);
+        }
+
+        // Miscellaneous functions
+        size_t size() const {
+            // Replace the line(s) below with your code.
+            return 0;
+        }
+
+        // Debugging functions
+        void dump_queue() const {
+            std::cout << "Raw queue...\n";
+            for ( size_t i = 0 ; i < MAX_SIZE ; ++i )
+                std::cout << "Val: " << buffer[i] << ", at: " << buffer+i << '\n';
+            std::cout << '\n';
+            return;
+        }
+
+};
 
 int main(){
-    const string itemType = "int";
-    const int SIZE = 5;
-    const int newEntry = 10;
+    RingQueue<int,7> rq;
+    rq.dump_queue();
 
-    cout << "Statement:\tvector<int> v1;\n";
-    vector<int> v1;
+    for ( int i = 0 ; i < 8 ; ++i )
+        rq.push_back(i+1);
 
-    cout << "\nAction(s):\tv1 is populated with " << SIZE 
-         << " " + itemType + " values\n";
-    for ( int i = 1 ; i <= SIZE ; ++i )
-        v1.push_back(i);
+    rq.dump_queue();
+    rq.pop_front();
 
-    cout << "\nStatement:\tvector<int> v2(v1);\n";
-    vector<int> v2(v1);
+    cout << "Queue via size: \n";
 
-    cout << "\nStatement:\tvector<int> v3 = v1;\n";
-    vector<int> v3 = v1;
-
-    cout << "\nAction(s):\t3rd entry of v1 is modified (" << newEntry << ")\n"
-         << "\t\tone more " << itemType + " value is pushed back ("
-         << 2 * newEntry << ")\n" << "\t\tv1 is displayed\n";
-    v1[2] = newEntry ;
-    v1.push_back( 2 * newEntry );
-    cout << "\tv1 = " << v1 << '\n';
-
-    cout << "\nAction(s):\tv2 is displayed\n";
-    cout << "\tv2 = " << v2 << '\n';
-
-    cout << "\nStatement:\tv3 = v2 = v1;\n";
-    v3 = v2 = v1; 
-
-    cout << "\nStatement:\tv1 = ( 2 * v2 ) * 3;\n";
-    v1 = ( 2 * v2 ) * 3;
-
-    cout << "\nAction(s):\tv1, v2, and v3 are displayed\n";
-    cout << "\tv1 = " << v1 << '\n';
-    cout << "\tv2 = " << v2 << '\n';
-    cout << "\tv3 = " << v3 << '\n';
-
-    cout << "\nStatement:\tv2 = v3 + v3;\n";
-    v2 = v3 + v3;
-
-    cout << "\nStatement:\tv3 += v2;\n";
-    v3 += v2;
-
-    cout << "\nAction(s):\tv1, v2, and v3 are displayed\n";
-    cout << "\tv1 = " << v1 << '\n';
-    cout << "\tv2 = " << v2 << '\n';
-    cout << "\tv3 = " << v3 << '\n';
-
-    cout << "\nAction(s):\tEntries 2--"<< SIZE 
-         <<" in v1, v2, and v3 replaced by 0\n";
-    for ( int i = 2 ; i < v1.size() ; ++i )
-        v1[i] = v2[i] = v3[i] = 0;
-
-    cout << "\nAction(s):\tv1, v2, and v3 are displayed\n";
-    cout << "\tv1 = " << v1 << '\n';
-    cout << "\tv2 = " << v2 << '\n';
-    cout << "\tv3 = " << v3 << '\n';
-
-    cout << "\nAction(s):\tThe dot product of v2 and v3 is displayed\n";
-    cout << "\tv2 * v3 = " << v2 * v3 << '\n';
-
-    cout << "\nAction(s):\tThe norms of v1, v2, and v3 are displayed\n";
-    cout << "\t|| v1 || = " << sqrt(v1*v1) << '\n';
-    cout << "\t|| v2 || = " << sqrt(v2*v2) << '\n';
-    cout << "\t|| v3 || = " << sqrt(v3*v3) << '\n';
-
-    cout << "\nAction(s):\tBoolean comparisons involving v1, v2, and v3\n";
-    cout << std::boolalpha
-         << "\tv1 <  v2 is " << ( v1 <  v2 ) << " because || v1 || >  || v2 ||\n"
-         << "\tv2 <= v1 is " << ( v2 <= v1 ) << "  because || v2 || <= || v1 ||\n"
-         << "\tv1 >  v3 is " << ( v1 >  v3 ) << "  because || v1 || >  || v3 ||\n"
-         << "\tv3 >= v1 is " << ( v3 >= v1 ) << " because || v3 || <  || v1 ||\n"
-         << "\tv2 == v3 is " << ( v2 == v3 ) << '\n'
-         << "\tv2 != v3 is " << ( v2 != v3 ) << '\n';
+    // RingQueue<int,7>::iterator it = rq.begin() ; 
+    auto it = rq.begin() ; 
+    for ( size_t i = 0 ; i < rq.size() ; ++i ) {
+        cout << "Value: " << *it << ", address: " << &(*it) << '\n';
+        ++it;
+    }
     cout << '\n';
 
-    cout << "\tv1 == 3 * v2 is " << ( v1 == 3 * v2 ) << '\n';
-    cout << '\n';
-    cout << "\t2 * v3 == 3 * v2 is " << ( 2 * v3 == 3 * v2 ) << '\n'; 
+    
 
-    cout << "\nStatement:\treturn 0;\n";
-    system("pause");
+    // Uncomment the block below only when you have a working 
+    // implementation of RingQueue<ItemType,int>::end(). 
+    // If the implementation is not correct, it might result in 
+    // an infinite loop.
+    /** 
+    std::cout << "Queue via iterators: \n";
+    for ( auto it = rq.begin() ; it != rq.end() ; ++it ) {
+        std::cout << "Value: " << *it << ", address: " << &(*it) << '\n';
+    }
+    std::cout << '\n';
+    */
+
+
+
+    rq.dump_queue();
+
     return 0;
 }
+
+
+
+/** 
+    +++++++++++++++++++++++++++++++++++++++++++++++
+    The output of your program [once the missing 
+    code is added] should look more or less like
+    the output below.
+    
+    Note:
+        It is dependent on the device where 
+        this driver is executed. However, it
+        should be clear that the difference 
+        between consecutive memory addresses
+        is equal to the number reported by
+        'size_of( int )'.
+    +++++++++++++++++++++++++++++++++++++++++++++++
+
+        Raw queue...
+        Val: 2, at: 0x7ffcdeeaab40
+        Val: 0, at: 0x7ffcdeeaab44
+        Val: 4198285, at: 0x7ffcdeeaab48
+        Val: 0, at: 0x7ffcdeeaab4c
+        Val: 0, at: 0x7ffcdeeaab50
+        Val: 0, at: 0x7ffcdeeaab54
+        Val: 0, at: 0x7ffcdeeaab58
+
+        Raw queue...
+        Val: 8, at: 0x7ffcdeeaab40
+        Val: 2, at: 0x7ffcdeeaab44
+        Val: 3, at: 0x7ffcdeeaab48
+        Val: 4, at: 0x7ffcdeeaab4c
+        Val: 5, at: 0x7ffcdeeaab50
+        Val: 6, at: 0x7ffcdeeaab54
+        Val: 7, at: 0x7ffcdeeaab58
+
+        Queue via size: 
+        Value: 3, address: 0x7ffcdeeaab48
+        Value: 4, address: 0x7ffcdeeaab4c
+        Value: 5, address: 0x7ffcdeeaab50
+        Value: 6, address: 0x7ffcdeeaab54
+        Value: 7, address: 0x7ffcdeeaab58
+        Value: 8, address: 0x7ffcdeeaab40
+
+        Queue via iterators: 
+        Value: 3, address: 0x7ffcdeeaab48
+        Value: 4, address: 0x7ffcdeeaab4c
+        Value: 5, address: 0x7ffcdeeaab50
+        Value: 6, address: 0x7ffcdeeaab54
+        Value: 7, address: 0x7ffcdeeaab58
+        Value: 8, address: 0x7ffcdeeaab40
+
+        Raw queue...
+        Val: 8, at: 0x7ffcdeeaab40
+        Val: 2, at: 0x7ffcdeeaab44
+        Val: 3, at: 0x7ffcdeeaab48
+        Val: 4, at: 0x7ffcdeeaab4c
+        Val: 5, at: 0x7ffcdeeaab50
+        Val: 6, at: 0x7ffcdeeaab54
+        Val: 7, at: 0x7ffcdeeaab58
+ */
