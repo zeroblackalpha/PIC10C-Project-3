@@ -17,13 +17,9 @@ class RingQueue{
     public: 
         class iterator;
 
-
-
     // Aliases. 
     typedef ItemType* pointer;
     typedef ItemType& reference;
-
-
 
     // Definition of RingQueue<ItemType,MAX_SIZE>::iterator
     public:
@@ -37,21 +33,20 @@ class RingQueue{
                 // queue.
                 int offset;
 
-            private:  // Private constructor???
+            private:
+                // Private constructor
                 iterator(RingQueue* _parent, int _offset = 0 )
                   : parent(_parent), offset(_offset) { }
 
-                
-            // It is quite common for Containers and their iterators
-            // to be friends. After all, they should work closely together.
             friend class RingQueue<ItemType,MAX_SIZE>;
 
-
             public:
+                // Dereference the iterator
                 reference operator*() {
                     return parent->buffer[(parent->begin_index + offset) % MAX_SIZE] ;  
                 }
 
+                // Move iterator
                 iterator& operator++(){
                     ++offset;
                     offset %= MAX_SIZE;
@@ -65,6 +60,7 @@ class RingQueue{
                     return temp;
                 }
 
+                // Iterator comparisons
                 bool operator==( const iterator& rhs ) const {
                     if (parent == rhs->parent && offset == rhs->offset) {
                         return true;
@@ -81,53 +77,82 @@ class RingQueue{
 
         };
 
-
-
-        /**
         class const_iterator{
             private:
+                // A link to the parent container 
                 RingQueue* parent;
+
+                // The position within the RingQueue is determined
+                // by how far ahead we are from the begining of the
+                // queue.
                 int offset;
 
             private:
-                // Only RingQueue objects can create const_iterators...
-                const_iterator() ;
-
-            public:
-                // ... however, const_iterators can be 'copied'.
-                const_iterator( const const_iterator& ) ;
+                // Private constructor
+                const_iterator(RingQueue* _parent, int _offset = 0 )
+                  : parent(_parent), offset(_offset) { }
 
             friend class RingQueue<ItemType,MAX_SIZE>;
+
+            public:
+                const_iterator(const const_iterator& iter) {
+                    parent = iter->parent;
+                    offset = iter->offset;
+                }
+
+                // Dereference the iterator
+                const reference operator*() {
+                    return parent->buffer[(parent->begin_index + offset) % MAX_SIZE] ;  
+                }
+
+                // Move iterator
+                const_iterator& operator++(){
+                    ++offset;
+                    offset %= MAX_SIZE;
+                    return *this;
+                }
+
+                const_iterator operator++( int unused ){
+                    auto temp = *this;
+                    ++offset;
+                    offset %= MAX_SIZE;
+                    return temp;
+                }
+
+                // Iterator comparisons
+                bool operator==( const const_iterator& rhs ) const {
+                    if (parent == rhs->parent && offset == rhs->offset) {
+                        return true;
+                    }
+                    return false;
+                }
+
+                bool operator!=( const const_iterator& rhs ) const {
+                    if (parent == rhs.parent && offset == rhs.offset) {
+                        return false;
+                    }
+                    return true;
+                }
+
         };
-        */
 
-
-
-    // Friendship goes both ways here.
     friend class iterator;
-    // friend class const_iterator;  // not implemented... yet.
-
-
+    friend class const_iterator;
 
     private:
-        // A fixed-size static array with constant capacity that represents 
-        // the RingQueue
+        // A fixed-size static array with constant capacity that represents the RingQueue
         ItemType buffer[MAX_SIZE];
 
-        // The starting index. It changes according to a very 
-        // specific set of rules (below).
+        // The starting index.
         int begin_index;
 
-        // The actual size of the RingQueue. Not to be confused with
-        // its capacity. 
+        // The actual size of the RingQueue - NOT capacity.
         int ring_size;
 
         // A helper function that computes the index of 'the end' of the RingQueue
         int end_index() const {
             return (begin_index + ring_size) % MAX_SIZE;
         }
-
-
 
     public: 
         // Constructor
@@ -136,19 +161,13 @@ class RingQueue{
         // Accessors. Note: 'back()' is not considered part of the array.
         ItemType front() const { 
             if ( ring_size == 0 ) std::cerr<< "Warning: Empty ring!\n" ;
-            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // Feel free to throw instead...
             return buffer[begin_index];
         }
 
         ItemType back() const {  
             if ( ring_size == 0 ) std::cerr<< "Warning: Empty ring!\n" ;
-            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // Feel free to throw instead...
             return buffer[end_index()]; 
         }
-
-
 
         // Mutators
         void push_back( const ItemType& value ) {
@@ -164,8 +183,6 @@ class RingQueue{
 
         void pop_front() {
             if ( ring_size == 0 ) std::cerr<< "Warning: Empty ring!\n" ;
-            // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // Feel free to throw instead...
             --ring_size;
             ++begin_index;
             begin_index %= MAX_SIZE;
@@ -217,17 +234,12 @@ int main() {
     }
     cout << '\n';
 
-    
+    cout << "Queue via iterators: \n";
 
-    // Uncomment the block below only when you have a working 
-    // implementation of RingQueue<ItemType,int>::end(). 
-    // If the implementation is not correct, it might result in 
-    // an infinite loop.
-    std::cout << "Queue via iterators: \n";
     for ( auto it = rq.begin() ; it != rq.end() ; ++it ) {
-        std::cout << "Value: " << *it << ", address: " << &(*it) << '\n';
+        cout << "Value: " << *it << ", address: " << &(*it) << '\n';
     }
-    std::cout << '\n';
+    cout << '\n';
 
 
 
